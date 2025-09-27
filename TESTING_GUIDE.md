@@ -8,64 +8,144 @@ This guide provides comprehensive instructions for setting up and testing the Au
 
 ---
 
+## 🚀 Quick Start (Docker - Recommended)
+
+> **TL;DR:** Just run these commands and you're ready to test!
+
+```bash
+# 1. Install Docker Desktop
+# Download from: https://www.docker.com/products/docker-desktop/
+
+# 2. Clone and setup
+git clone https://github.com/kerbasi/gearshare-apiv3.git
+cd gearshare-apiv3/auto-parts-api
+
+# 3. One-command setup
+# Linux/Mac:
+./scripts/docker-setup.sh
+
+# Windows:
+scripts\docker-setup.bat
+
+# 4. Test the API
+curl http://localhost:3000/health
+# Open: http://localhost:3000/api/docs
+```
+
+**That's it!** Your API is running with PostgreSQL, Redis, and pgAdmin. 🎉
+
+---
+
 ## 📋 Prerequisites
 
 ### Required Software
 - **Node.js** (v18 or higher) - [Download](https://nodejs.org/)
-- **PostgreSQL** (v12 or higher) - [Download](https://www.postgresql.org/download/)
+- **Docker Desktop** - [Download](https://www.docker.com/products/docker-desktop/)
 - **Git** - [Download](https://git-scm.com/)
 - **VS Code** (recommended) - [Download](https://code.visualstudio.com/)
 
 ### Optional Tools
-- **pgAdmin** - PostgreSQL administration tool
 - **Postman** - API testing tool
-- **Docker Desktop** - Alternative to local PostgreSQL
+- **pgAdmin** - PostgreSQL administration tool (included in Docker setup)
+
+### Why Docker?
+✅ **One-click setup** - No complex PostgreSQL installation  
+✅ **Consistent environment** - Same setup across all platforms  
+✅ **Easy cleanup** - Remove everything with one command  
+✅ **No system pollution** - Doesn't install software on your machine  
+✅ **Production-like** - Same environment as production deployment
 
 ---
 
-## 🗄️ Step 1: PostgreSQL Database Setup
+## 🐳 Step 1: Docker Setup (Recommended)
 
-### 1.1 Install PostgreSQL
+### 1.1 Install Docker Desktop
 
 #### Windows:
-1. Download PostgreSQL from [postgresql.org](https://www.postgresql.org/download/windows/)
-2. Run the installer as Administrator
-3. Choose installation directory (default: `C:\Program Files\PostgreSQL\15`)
-4. Set superuser password (remember this!)
-5. Set port (default: 5432)
-6. Complete installation
+1. Download Docker Desktop from [docker.com](https://www.docker.com/products/docker-desktop/)
+2. Run the installer
+3. Enable WSL 2 integration (recommended)
+4. Restart your computer if prompted
+5. Start Docker Desktop
 
 #### macOS:
-```bash
-# Using Homebrew
-brew install postgresql
-brew services start postgresql
-
-# Or download from postgresql.org
-```
+1. Download Docker Desktop from [docker.com](https://www.docker.com/products/docker-desktop/)
+2. Install and start Docker Desktop
+3. Ensure Docker is running (whale icon in menu bar)
 
 #### Linux (Ubuntu/Debian):
 ```bash
+# Install Docker
 sudo apt update
-sudo apt install postgresql postgresql-contrib
-sudo systemctl start postgresql
-sudo systemctl enable postgresql
+sudo apt install docker.io docker-compose
+sudo systemctl start docker
+sudo systemctl enable docker
+
+# Add user to docker group (optional)
+sudo usermod -aG docker $USER
+# Log out and back in for changes to take effect
 ```
 
-### 1.2 Create Database and User
+### 1.2 Start Database with Docker Compose
 
-#### Option A: Using psql Command Line
 ```bash
-# Connect to PostgreSQL as superuser
+# Navigate to project directory
+cd auto-parts-api
+
+# Start only the database services
+docker-compose up -d postgres redis pgadmin
+
+# Or start everything (API + Database + Redis + pgAdmin)
+docker-compose up -d
+```
+
+### 1.3 Verify Docker Services
+
+```bash
+# Check running containers
+docker-compose ps
+
+# View logs
+docker-compose logs postgres
+
+# Connect to PostgreSQL directly
+docker-compose exec postgres psql -U autoparts_user -d autoparts_api
+```
+
+### 1.4 Access pgAdmin (Optional)
+
+1. Open browser and go to: http://localhost:5050
+2. Login credentials:
+   - Email: `admin@example.com`
+   - Password: `admin123`
+3. Add server connection:
+   - Host: `postgres`
+   - Port: `5432`
+   - Database: `autoparts_api`
+   - Username: `autoparts_user`
+   - Password: `secure_password`
+
+---
+
+## 🗄️ Alternative: Traditional PostgreSQL Setup
+
+> **Note:** This section is for users who prefer to install PostgreSQL directly on their system instead of using Docker.
+
+### Traditional Installation Steps
+
+#### Install PostgreSQL
+- **Windows:** [Download from postgresql.org](https://www.postgresql.org/download/windows/)
+- **macOS:** `brew install postgresql && brew services start postgresql`
+- **Linux:** `sudo apt install postgresql postgresql-contrib`
+
+#### Create Database and User
+```bash
+# Connect as superuser
 psql -U postgres
 
-# Create database
+# Create database and user
 CREATE DATABASE autoparts_api;
-
-# Create user
 CREATE USER autoparts_user WITH PASSWORD 'secure_password';
-
-# Grant privileges
 GRANT ALL PRIVILEGES ON DATABASE autoparts_api TO autoparts_user;
 
 # Grant schema privileges
@@ -73,28 +153,16 @@ GRANT ALL PRIVILEGES ON DATABASE autoparts_api TO autoparts_user;
 GRANT ALL ON SCHEMA public TO autoparts_user;
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO autoparts_user;
 GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO autoparts_user;
-
-# Exit psql
 \q
 ```
 
-#### Option B: Using pgAdmin (GUI)
-1. Open pgAdmin
-2. Connect to PostgreSQL server
-3. Right-click "Databases" → "Create" → "Database"
-   - Name: `autoparts_api`
-4. Right-click "Login/Group Roles" → "Create" → "Login/Group Role"
-   - Name: `autoparts_user`
-   - Password: `secure_password`
-   - Privileges: Check "Can login?"
-5. Right-click the new database → "Properties" → "Security"
-   - Add the user with all privileges
-
-### 1.3 Verify Database Connection
+#### Use Setup Scripts
 ```bash
-# Test connection
-psql -h localhost -U autoparts_user -d autoparts_api
-# Enter password when prompted
+# Linux/Mac
+./scripts/setup-database.sh
+
+# Windows
+scripts\setup-database.bat
 ```
 
 ---
@@ -112,6 +180,11 @@ npm install
 ```
 
 ### 2.2 Environment Configuration
+
+#### For Docker Setup (Recommended):
+The `.env` file is already configured for Docker. No changes needed!
+
+#### For Traditional PostgreSQL Setup:
 ```bash
 # Copy environment template
 cp .env.example .env
@@ -152,8 +225,31 @@ npm run migration:run
 This will create all tables, indexes, and seed initial data.
 
 ### 2.4 Start the Application
+
+#### Option A: Docker Compose (Recommended)
 ```bash
-# Development mode with hot reload
+# Start everything (API + Database + Redis + pgAdmin)
+docker-compose up -d
+
+# View logs
+docker-compose logs -f api
+
+# Stop services
+docker-compose down
+```
+
+#### Option B: Local Development
+```bash
+# Make sure Docker database is running first
+docker-compose up -d postgres redis
+
+# Start API locally with hot reload
+npm run start:dev
+```
+
+#### Option C: Traditional PostgreSQL
+```bash
+# Start API locally (with traditional PostgreSQL)
 npm run start:dev
 ```
 
@@ -392,20 +488,28 @@ grep "AUTH" logs/combined.log
 
 ---
 
-## 🐳 Step 6: Alternative Docker Setup
+## 🐳 Step 6: Docker Management Commands
 
-If you prefer using Docker instead of local PostgreSQL:
-
-### 6.1 Start Docker Services
+### 6.1 Docker Service Management
 ```bash
-# Start all services (PostgreSQL, Redis, API)
+# Start all services
 docker-compose up -d
 
-# View logs
+# Start specific services only
+docker-compose up -d postgres redis
+
+# View service logs
 docker-compose logs -f api
+docker-compose logs -f postgres
 
 # Check service status
 docker-compose ps
+
+# Stop all services
+docker-compose down
+
+# Stop and remove volumes (clean slate)
+docker-compose down -v
 ```
 
 ### 6.2 Access Docker Services
@@ -414,10 +518,19 @@ docker-compose ps
 - **pgAdmin:** http://localhost:5050
 - **Redis:** localhost:6379
 
-### 6.3 Run Migrations in Docker
+### 6.3 Run Commands in Docker Containers
 ```bash
 # Execute migration command in API container
 docker-compose exec api npm run migration:run
+
+# Connect to PostgreSQL container
+docker-compose exec postgres psql -U autoparts_user -d autoparts_api
+
+# Run tests in API container
+docker-compose exec api npm run test:unit
+
+# Access container shell
+docker-compose exec api sh
 ```
 
 ---
