@@ -8,6 +8,7 @@ import { ManufacturersModule } from './modules/manufacturers/manufacturers.modul
 import { PartsModule } from './modules/parts/parts.module';
 import { CategoriesModule } from './modules/categories/categories.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { HealthModule } from './modules/health/health.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { AuthModule } from './modules/auth/auth.module';
     PartsModule,
     CategoriesModule,
     AuthModule,
+    HealthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

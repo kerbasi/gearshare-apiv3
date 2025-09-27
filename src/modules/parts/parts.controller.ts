@@ -20,7 +20,9 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Public } from '../auth/decorators/public.decorator';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiTags('Parts')
 @Controller('parts')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class PartsController {
@@ -29,24 +31,36 @@ export class PartsController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @Roles('admin', 'manager')
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: 'Create a new auto part' })
+  @ApiResponse({ status: 201, description: 'Part successfully created' })
+  @ApiResponse({ status: 400, description: 'Bad request - validation failed' })
+  @ApiResponse({ status: 409, description: 'Conflict - part already exists' })
   async create(@Body() createPartDto: CreatePartDto) {
     return await this.partsService.create(createPartDto);
   }
 
   @Get()
   @Roles('admin', 'manager')
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: 'Get all parts (Admin/Manager only)' })
+  @ApiResponse({ status: 200, description: 'All parts retrieved successfully' })
   async findAll() {
     return await this.partsService.findAll();
   }
 
   @Get('active')
   @Public()
+  @ApiOperation({ summary: 'Get all active parts (Public)' })
+  @ApiResponse({ status: 200, description: 'Active parts retrieved successfully' })
   async findActive() {
     return await this.partsService.findActive();
   }
 
   @Get('featured')
   @Public()
+  @ApiOperation({ summary: 'Get featured parts (Public)' })
+  @ApiResponse({ status: 200, description: 'Featured parts retrieved successfully' })
   async findFeatured() {
     return await this.partsService.findFeatured();
   }
