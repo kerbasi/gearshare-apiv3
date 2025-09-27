@@ -134,6 +134,28 @@ API documentation will be available at `http://localhost:3000/api` (Swagger/Open
 | `PORT` | Application port | `3000` |
 | `API_PREFIX` | API prefix | `api/v1` |
 
+## 📋 Project Status
+
+**Current Phase:** Phase 2 Complete - Authentication & Authorization System  
+**Progress:** 2/5 phases completed (40%)  
+**Next Phase:** Production Readiness & Best Practices  
+
+📖 **For detailed progress tracking, see [PHASES_SUMMARY.md](./PHASES_SUMMARY.md)**
+
+## 🔐 Authentication
+
+The API uses JWT-based authentication. To access protected endpoints:
+
+1. Register a new user: `POST /auth/register`
+2. Login: `POST /auth/login`
+3. Use the returned token: `Authorization: Bearer <your-jwt-token>`
+
+### Available Roles:
+- **Admin** - Full system access
+- **Manager** - Inventory and order management  
+- **Client** - Customer access (default for new users)
+- **Guest** - View-only access
+
 ## 🚧 Development Phases
 
 ### ✅ Phase 0: Project Initialization (Completed)
@@ -142,24 +164,38 @@ API documentation will be available at `http://localhost:3000/api` (Swagger/Open
 - [x] Environment configuration
 - [x] Basic project structure
 
-### 🔄 Phase 1: Core API Structure & CRUD (In Progress)
-- [ ] Define TypeORM entities
-- [ ] Create modules, controllers, and services
-- [ ] Implement CRUD operations
-- [ ] Create DTOs with validation
-- [ ] Integrate Swagger documentation
+### ✅ Phase 1: Core API Structure & CRUD (Completed)
+- [x] Define TypeORM entities (14 entities)
+- [x] Create modules, controllers, and services
+- [x] Implement CRUD operations
+- [x] Create DTOs with validation
+- [x] Advanced search and filtering
 
-### ⏳ Phase 2: Authentication & Authorization
-- [ ] JWT-based authentication
-- [ ] User registration and login
-- [ ] Role-based access control
-- [ ] Password hashing
+### ✅ Phase 2: Authentication & Authorization (Completed)
+- [x] JWT-based authentication
+- [x] User registration and login
+- [x] Role-based access control
+- [x] Password hashing with bcrypt
+- [x] Protected API endpoints
 
-### ⏳ Phase 3: Production Readiness
-- [ ] Structured logging
-- [ ] Comprehensive testing
+### 🔄 Phase 3: Production Readiness (Next)
 - [ ] Docker containerization
+- [ ] API documentation with Swagger
+- [ ] Health checks and monitoring
+- [ ] Comprehensive testing suite
+- [ ] Logging and error tracking
+
+### ⏳ Phase 4: Advanced Features (Planned)
+- [ ] Orders and inventory management
+- [ ] Payment processing
+- [ ] Analytics and reporting
+- [ ] Background job processing
+
+### ⏳ Phase 5: Deployment & DevOps (Planned)
+- [ ] Cloud deployment
 - [ ] CI/CD pipeline
+- [ ] Monitoring and alerting
+- [ ] Security audit
 
 ## 🤝 Contributing
 
