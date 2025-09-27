@@ -5,6 +5,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './modules/users/users.module';
 import { ManufacturersModule } from './modules/manufacturers/manufacturers.module';
+import { PartsModule } from './modules/parts/parts.module';
+import { CategoriesModule } from './modules/categories/categories.module';
 
 @Module({
   imports: [
@@ -37,6 +39,8 @@ import { ManufacturersModule } from './modules/manufacturers/manufacturers.modul
     // Feature modules
     UsersModule,
     ManufacturersModule,
+    PartsModule,
+    CategoriesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
