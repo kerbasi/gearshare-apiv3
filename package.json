@@ -21,6 +21,8 @@
     "test:unit": "jest --testPathPatterns=spec.ts",
     "test:integration": "jest --config ./test/jest-e2e.json",
     "test:all": "npm run test:unit && npm run test:integration",
+    "setup:db": "node -e \"console.log('Use scripts/setup-database.sh (Linux/Mac) or scripts/setup-database.bat (Windows)')\"",
+    "test:api": "node -e \"console.log('Use scripts/test-api.sh (Linux/Mac) or run manually with curl')\"",
     "typeorm": "typeorm-ts-node-commonjs",
     "migration:generate": "npm run typeorm -- migration:generate -d src/database/typeorm.config.ts",
     "migration:run": "npm run typeorm -- migration:run -d src/database/typeorm.config.ts",
