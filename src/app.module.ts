@@ -7,6 +7,7 @@ import { UsersModule } from './modules/users/users.module';
 import { ManufacturersModule } from './modules/manufacturers/manufacturers.module';
 import { PartsModule } from './modules/parts/parts.module';
 import { CategoriesModule } from './modules/categories/categories.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { CategoriesModule } from './modules/categories/categories.module';
     ManufacturersModule,
     PartsModule,
     CategoriesModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

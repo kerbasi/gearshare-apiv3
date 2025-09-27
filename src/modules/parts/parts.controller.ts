@@ -11,42 +11,54 @@ import {
   HttpStatus,
   HttpCode,
   ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { PartsService } from './parts.service';
 import { CreatePartDto } from './dto/create-part.dto';
 import { UpdatePartDto } from './dto/update-part.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Public } from '../auth/decorators/public.decorator';
 
 @Controller('parts')
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class PartsController {
   constructor(private readonly partsService: PartsService) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @Roles('admin', 'manager')
   async create(@Body() createPartDto: CreatePartDto) {
     return await this.partsService.create(createPartDto);
   }
 
   @Get()
+  @Roles('admin', 'manager')
   async findAll() {
     return await this.partsService.findAll();
   }
 
   @Get('active')
+  @Public()
   async findActive() {
     return await this.partsService.findActive();
   }
 
   @Get('featured')
+  @Public()
   async findFeatured() {
     return await this.partsService.findFeatured();
   }
 
   @Get('low-stock')
+  @Roles('admin', 'manager')
   async findLowStock() {
     return await this.partsService.findLowStock();
   }
 
   @Get('search')
+  @Public()
   async search(@Query('q') query: string) {
     if (!query) {
       return [];
@@ -55,16 +67,19 @@ export class PartsController {
   }
 
   @Get('by-category/:categoryId')
+  @Public()
   async findByCategory(@Param('categoryId', ParseUUIDPipe) categoryId: string) {
     return await this.partsService.findByCategory(categoryId);
   }
 
   @Get('by-manufacturer/:manufacturerId')
+  @Public()
   async findByManufacturer(@Param('manufacturerId', ParseUUIDPipe) manufacturerId: string) {
     return await this.partsService.findByManufacturer(manufacturerId);
   }
 
   @Get('by-tags')
+  @Public()
   async findByTags(@Query('tags') tags: string) {
     if (!tags) {
       return [];
@@ -74,11 +89,13 @@ export class PartsController {
   }
 
   @Get(':id')
+  @Public()
   async findOne(@Param('id', ParseUUIDPipe) id: string) {
     return await this.partsService.findOne(id);
   }
 
   @Patch(':id')
+  @Roles('admin', 'manager')
   async update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updatePartDto: UpdatePartDto,
@@ -87,6 +104,7 @@ export class PartsController {
   }
 
   @Patch(':id/stock')
+  @Roles('admin', 'manager')
   async updateStock(
     @Param('id', ParseUUIDPipe) id: string,
     @Body('quantity', ParseIntPipe) quantity: number,
@@ -96,16 +114,19 @@ export class PartsController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @Roles('admin')
   async remove(@Param('id', ParseUUIDPipe) id: string) {
     await this.partsService.remove(id);
   }
 
   @Patch(':id/soft-delete')
+  @Roles('admin', 'manager')
   async softDelete(@Param('id', ParseUUIDPipe) id: string) {
     return await this.partsService.softDelete(id);
   }
 
   @Patch(':id/restore')
+  @Roles('admin', 'manager')
   async restore(@Param('id', ParseUUIDPipe) id: string) {
     return await this.partsService.restore(id);
   }
