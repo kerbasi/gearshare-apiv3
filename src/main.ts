@@ -2,16 +2,27 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { LoggingService } from './modules/logging/logging.service';
+import { HttpLoggingInterceptor } from './modules/logging/http-logging.interceptor';
+import { GlobalExceptionFilter } from './filters/global-exception.filter';
+import { CustomValidationPipe } from './pipes/validation.pipe';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    logger: false, // Disable default logger to use Winston
+  });
 
-  // Global validation pipe
-  app.useGlobalPipes(new ValidationPipe({
-    whitelist: true,
-    forbidNonWhitelisted: true,
-    transform: true,
-  }));
+  // Get logging service
+  const loggingService = app.get(LoggingService);
+
+  // Global validation pipe with custom error handling
+  app.useGlobalPipes(new CustomValidationPipe());
+
+  // Global exception filter
+  app.useGlobalFilters(new GlobalExceptionFilter(loggingService));
+
+  // Global logging interceptor
+  app.useGlobalInterceptors(new HttpLoggingInterceptor(loggingService));
 
   // Swagger documentation setup
   const config = new DocumentBuilder()

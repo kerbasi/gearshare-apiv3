@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import { PasswordService } from './password.service';
 import { RoleService } from './role.service';
+import { LoggingService } from '../logging/logging.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
@@ -22,6 +23,7 @@ export class AuthService {
     private readonly passwordService: PasswordService,
     private readonly jwtService: JwtService,
     private readonly roleService: RoleService,
+    private readonly loggingService: LoggingService,
   ) {}
 
   async register(registerDto: RegisterDto): Promise<AuthResponse> {
@@ -66,6 +68,9 @@ export class AuthService {
     // Generate tokens
     const tokens = await this.generateTokens(user);
 
+    // Log successful registration
+    this.loggingService.logAuthEvent('user_registered', user.id, user.email);
+
     return {
       user: this.sanitizeUser(user),
       ...tokens,
@@ -95,6 +100,9 @@ export class AuthService {
 
     // Generate tokens
     const tokens = await this.generateTokens(user);
+
+    // Log successful login
+    this.loggingService.logAuthEvent('user_logged_in', user.id, user.email);
 
     return {
       user: this.sanitizeUser(user),

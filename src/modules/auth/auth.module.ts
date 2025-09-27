@@ -7,6 +7,7 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { PasswordService } from './password.service';
 import { RoleService } from './role.service';
+import { LoggingService } from '../logging/logging.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RolesGuard } from './guards/roles.guard';
@@ -34,6 +35,7 @@ import { UserRole } from '../../database/entities/user-role.entity';
     AuthService,
     PasswordService,
     RoleService,
+    LoggingService,
     JwtStrategy,
     JwtAuthGuard,
     RolesGuard,
