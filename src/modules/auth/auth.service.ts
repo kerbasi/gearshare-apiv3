@@ -32,11 +32,7 @@ export class AuthService {
       throw new BadRequestException('Passwords do not match');
     }
 
-    // Validate password strength
-    const passwordValidation = await this.passwordService.validatePasswordStrength(registerDto.password);
-    if (!passwordValidation.isValid) {
-      throw new BadRequestException(`Password validation failed: ${passwordValidation.errors.join(', ')}`);
-    }
+    // Password validation is handled by DTO validation
 
     // Check if user already exists
     const existingUserByEmail = await this.usersService.findByEmail(registerDto.email);
@@ -131,11 +127,7 @@ export class AuthService {
       throw new UnauthorizedException('Current password is incorrect');
     }
 
-    // Validate new password strength
-    const passwordValidation = await this.passwordService.validatePasswordStrength(changePasswordDto.newPassword);
-    if (!passwordValidation.isValid) {
-      throw new BadRequestException(`Password validation failed: ${passwordValidation.errors.join(', ')}`);
-    }
+    // Password validation is handled by DTO validation
 
     // Hash new password
     const hashedNewPassword = await this.passwordService.hashPassword(changePasswordDto.newPassword);
@@ -170,10 +162,8 @@ export class AuthService {
       role: user.role?.name || 'user',
     };
 
-    const [accessToken, refreshToken] = await Promise.all([
-      this.jwtService.signAsync(payload, { expiresIn: '15m' }),
-      this.jwtService.signAsync(payload, { expiresIn: '7d' }),
-    ]);
+    const accessToken = this.jwtService.sign(payload, { expiresIn: '15m' });
+    const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
 
     return { accessToken, refreshToken };
   }

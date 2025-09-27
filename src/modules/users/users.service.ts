@@ -54,28 +54,20 @@ export class UsersService {
     return user;
   }
 
-  async findByEmail(email: string): Promise<User> {
+  async findByEmail(email: string): Promise<User | null> {
     const user = await this.userRepository.findOne({
       where: { email },
       relations: ['role'],
     });
 
-    if (!user) {
-      throw new NotFoundException(`User with email ${email} not found`);
-    }
-
     return user;
   }
 
-  async findByUsername(username: string): Promise<User> {
+  async findByUsername(username: string): Promise<User | null> {
     const user = await this.userRepository.findOne({
       where: { username },
       relations: ['role'],
     });
-
-    if (!user) {
-      throw new NotFoundException(`User with username ${username} not found`);
-    }
 
     return user;
   }
@@ -103,18 +95,20 @@ export class UsersService {
     }
 
     Object.assign(user, updateUserDto);
+    user.updatedAt = new Date();
     return await this.userRepository.save(user);
   }
 
   async remove(id: string): Promise<void> {
-    const user = await this.findOne(id);
-    await this.userRepository.remove(user);
+    await this.findOne(id); // Check if user exists
+    await this.userRepository.delete(id);
   }
 
   async softDelete(id: string): Promise<User> {
     const user = await this.findOne(id);
-    user.isActive = false;
-    return await this.userRepository.save(user);
+    await this.userRepository.softDelete(id);
+    user.deletedAt = new Date();
+    return user;
   }
 
   async restore(id: string): Promise<User> {
@@ -127,7 +121,8 @@ export class UsersService {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
 
-    user.isActive = true;
-    return await this.userRepository.save(user);
+    await this.userRepository.restore(id);
+    user.deletedAt = null;
+    return user;
   }
 }
